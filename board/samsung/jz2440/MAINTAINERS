@@ -1,0 +1,6 @@
+JZ2440 BOARD
+M:	David-Croose <178449962@qq.com>
+S:	Maintained
+F:	board/samsung/jz2440/
+F:	include/configs/jz2440.h
+F:	configs/jz2440_defconfig
