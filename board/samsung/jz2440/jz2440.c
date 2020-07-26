@@ -1,14 +1,3 @@
-/*
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
- *
- * (C) Copyright 2002, 2010
- * David Mueller, ELSOFT AG, <d.mueller@elsoft.ch>
- *
- * SPDX-License-Identifier:	GPL-2.0+
- */
-
 #include <common.h>
 #include <netdev.h>
 #include <asm/io.h>
@@ -96,8 +85,8 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	/* arch number of SMDK2410-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_SMDK2410;
+	/* arch number of JZ2440-Board */
+	gd->bd->bi_arch_number = MACH_TYPE_S3C2440;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x30000100;
