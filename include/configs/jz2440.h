@@ -11,7 +11,6 @@
 
 #define CONFIG_SYS_TEXT_BASE	0x0
 
-
 #define CONFIG_SYS_ARM_CACHE_WRITETHROUGH
 
 /* input clock of PLL (the JZ2440 has 12MHz input clock) */
@@ -180,5 +179,29 @@
 				GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_BOARD_EARLY_INIT_F
+
+
+
+
+
+
+
+
+
+
+
+
+
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_JZ2440
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	4096
+
+
+
+
+
+
+
 
 #endif /* __CONFIG_H */

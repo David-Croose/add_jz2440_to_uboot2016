@@ -11,6 +11,7 @@ ifdef CONFIG_SPL_NAND_DRIVERS
 NORMAL_DRIVERS=y
 endif
 
+obj-$(CONFIG_SPL_NAND_JZ2440) += jz2440_spl.o
 obj-$(CONFIG_SPL_NAND_AM33XX_BCH) += am335x_spl_bch.o
 obj-$(CONFIG_SPL_NAND_DENALI) += denali_spl.o
 obj-$(CONFIG_SPL_NAND_DOCG4) += docg4_spl.o
