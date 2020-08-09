@@ -9,7 +9,7 @@
 #define CONFIG_S3C2440		/* specifically a SAMSUNG S3C2440 SoC */
 #define CONFIG_MACH_TYPE MACH_TYPE_S3C2440
 
-#define CONFIG_SYS_TEXT_BASE	0x0
+#define CONFIG_SYS_TEXT_BASE	0
 
 #define CONFIG_SYS_ARM_CACHE_WRITETHROUGH
 
@@ -191,7 +191,7 @@
 
 
 /* if you don't want the combination image "u-boot-with-spl.bin", delete this macro */
-#define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
+/* #define CONFIG_SPL_TARGET	"u-boot-with-spl.bin" */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_JZ2440

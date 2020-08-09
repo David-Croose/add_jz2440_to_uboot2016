@@ -340,11 +340,14 @@ static int spl_load_image(u32 boot_device)
 	return -EINVAL;
 }
 
+void uart0_puts(const char *p);
+
 void board_init_r(gd_t *dummy1, ulong dummy2)
 {
 	int i;
 
 	debug(">>spl:board_init_r()\n");
+	uart0_puts(">>spl:board_init_r()\n");
 
 #if defined(CONFIG_SYS_SPL_MALLOC_START)
 	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
@@ -378,12 +381,14 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	if (i == ARRAY_SIZE(spl_boot_list) ||
 	    spl_boot_list[i] == BOOT_DEVICE_NONE) {
 		puts("SPL: failed to boot from all boot devices\n");
+		uart0_puts("SPL: failed to boot from all boot devices\n");
 		hang();
 	}
 
 	switch (spl_image.os) {
 	case IH_OS_U_BOOT:
 		debug("Jumping to U-Boot\n");
+		uart0_puts("Jumping to U-Boot\n");
 		break;
 #ifdef CONFIG_SPL_OS_BOOT
 	case IH_OS_LINUX:
@@ -400,6 +405,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #endif
 
 	debug("loaded - jumping to U-Boot...");
+	uart0_puts("loaded - jumping to U-Boot...");
 	jump_to_image_no_args(&spl_image);
 }
 
