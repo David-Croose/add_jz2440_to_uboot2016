@@ -115,6 +115,7 @@ unsigned int spl_boot_device(void)
 
 inline void hang(void)
 {
+	uart0_puts("====> hang\n");
 	for (;;)
 		;
 }
@@ -207,14 +208,55 @@ void led_ctrl(int select, int light)
 
 void board_init_f(ulong dummy)
 {
-	/// s3c2440_clock_init();
+	unsigned int __data[] = {
+		0x22011110,
+		0x00000700,
+		0x00000700,
+		0x00000700,
+		0x00000700,
+		0x00000700,
+		0x00000700,
+		0x00018005,
+		0x00018005,
+		0x008C07A3,
+		0x000000B1,
+		0x00000030,
+		0x00000030,
+	};
 
-	/// preloader_console_init();
+	int i;
+	volatile unsigned int *p;
+	s3c2440_clock_init();
 
-	/// spl_init();
+	preloader_console_init();
+
+	////////////////////////////////////////////////
+#if 1
+	p = (volatile unsigned int *)0x48000000;
+	for (i = 0; i < 13; i++) {
+		*p = (volatile unsigned int *)&__data[i];
+		p++;
+	}
+#endif
+	////////////////////////////////////////////////
+
+	spl_init();
 
 	led_init();
 	led_ctrl(1, 1);
 
 	uart0_puts("\nboard_init_f\n");
+
+	uart0_puts("SDRAM testing...\n");
+	for (i = 0; i < 1000; i++) {
+		*(volatile unsigned char *)(0x30000000 + i) = i;
+		if (*(volatile unsigned char *)(0x30000000 + i) != i) {
+			uart0_puts("SDRAM test error\n");
+			led_ctrl(7, 1);
+			while(1);
+		}
+	}
+
+	uart0_puts("SDRAM test done\n");
+
 }

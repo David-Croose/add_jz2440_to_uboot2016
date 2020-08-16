@@ -472,4 +472,8 @@ void clock_enable(unsigned int clknum);
 void uart0_puts(const char *p);
 void led_ctrl(int select, int light);
 
+///#include <string.h>
+#include <common.h>
+#define dprintf(fmt...)		do { char buf[100]; sprintf(buf, ##fmt); uart0_puts(buf); } while(0)
+
 #endif
