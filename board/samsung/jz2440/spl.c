@@ -2,25 +2,6 @@
 #include <spl.h>
 #include <asm/arch/jz2440.h>
 
-static void s3c2440_clock_init(void)
-{
-	// FCLK = FCLK / 1
-	// HCLK = FCLK / 4
-	// PCLK = FCLK / 8
-	*(volatile unsigned int *)CLKDIVN = 0x05;
-	__asm__
-	(
-		"mrc	p15, 0, r1, c1, c0, 0\r\n"
-		"orr	r1, r1, #0xC0000000\r\n"
-		"mcr	p15, 0, r1, c1, c0, 0\r\n"
-	);
-	*(volatile unsigned int *)MPLLCON = (0x5C << 12) | (0x01 << 4) | (0x01);
-
-	// fclk: 400MHz
-	// hclk: 100MHz
-	// pclk: 50MHz
-}
-
 static void uart0_init(void)
 {
 #define PCLK 50000000
@@ -208,46 +189,48 @@ void led_ctrl(int select, int light)
 
 void board_init_f(ulong dummy)
 {
-	unsigned int __data[] = {
-		0x22011110,
-		0x00000700,
-		0x00000700,
-		0x00000700,
-		0x00000700,
-		0x00000700,
-		0x00000700,
-		0x00018005,
-		0x00018005,
-		0x008C07A3,
-		0x000000B1,
-		0x00000030,
-		0x00000030,
-	};
-
 	int i;
-	volatile unsigned int *p;
-	s3c2440_clock_init();
+	volatile unsigned int *p = (volatile unsigned int *)0x30000000;
 
+#if 0
 	preloader_console_init();
-
-	////////////////////////////////////////////////
-#if 1
-	p = (volatile unsigned int *)0x48000000;
-	for (i = 0; i < 13; i++) {
-		*p = (volatile unsigned int *)&__data[i];
-		p++;
-	}
-#endif
-	////////////////////////////////////////////////
-
 	spl_init();
-
 	led_init();
 	led_ctrl(1, 1);
+#else
+	serial_init();
+#endif
+
+	/// // print SDRAM param
+	/// volatile unsigned int *p = (volatile unsigned int *)0x48000000;
+	/// for (i = 0; i < 13; i++)
+
+
+
+
 
 	uart0_puts("\nboard_init_f\n");
 
 	uart0_puts("SDRAM testing...\n");
+#if 1
+
+
+    for (i = 0; i < 10000; i++) {
+        p[i] = i;
+        if (p[i] != i) {
+        	uart0_puts("error\n");
+            while(1);
+        }
+    }
+
+
+	/// *(volatile unsigned int *)(0x30000000) = 0x12345678;
+	/// if (*(volatile unsigned int *)(0x30000000) == 0x12345678)
+	/// 	uart0_puts("SDRAM test OK\n");
+	/// else
+	/// 	uart0_puts("SDRAM test error\n");
+
+#else
 	for (i = 0; i < 1000; i++) {
 		*(volatile unsigned char *)(0x30000000 + i) = i;
 		if (*(volatile unsigned char *)(0x30000000 + i) != i) {
@@ -256,6 +239,7 @@ void board_init_f(ulong dummy)
 			while(1);
 		}
 	}
+#endif
 
 	uart0_puts("SDRAM test done\n");
 

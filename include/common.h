@@ -251,6 +251,8 @@ void board_init_r(gd_t *, ulong) __attribute__ ((noreturn));
  */
 ulong board_init_f_mem(ulong top);
 
+void pre_init(void);
+
 /**
  * arch_setup_gd() - Set up the global_data pointer
  *

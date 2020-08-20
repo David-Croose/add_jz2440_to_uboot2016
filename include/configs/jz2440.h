@@ -11,6 +11,8 @@
 
 #define CONFIG_SYS_TEXT_BASE	0x0
 
+#define CONFIG_SKIP_LOWLEVEL_INIT
+
 #define CONFIG_SYS_ARM_CACHE_WRITETHROUGH
 
 /* input clock of PLL (the JZ2440 has 12MHz input clock) */

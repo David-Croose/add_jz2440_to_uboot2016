@@ -70,23 +70,16 @@ ENTRY(_main)
  * Set up initial C runtime environment and call board_init_f(0).
  */
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
-	ldr	sp, =(CONFIG_SPL_STACK)
-#else
-	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
-#endif
 
-#if defined(CONFIG_CPU_V7M)	/* v7M forbids using SP as BIC destination */
-	mov	r3, sp
-	bic	r3, r3, #7
-	mov	sp, r3
-#else
-	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
-#endif
+	ldr	sp, =4096
+	bl	pre_init
+	/* ldr	sp, =0x34000000 */
 
+/*
 	mov	r0, sp
 	bl	board_init_f_mem
 	mov	sp, r0
+*/
 
 	mov	r0, #0
 	bl	board_init_f
