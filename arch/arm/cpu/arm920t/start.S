@@ -25,89 +25,68 @@
  *************************************************************************
  */
 
-/**
- * clock registers
- */
-#define  CLKDIV         0x4C000014
-#define  MPLLCON        0x4C000004
-
 	.globl	reset
 
 reset:
-	/**
-	 * disable the watch dog timer
+	/*
+	 * set the cpu to SVC32 mode
 	 */
-	ldr		r0, =0x53000000
-	mov		r1, #0
-	str		r1, [r0]
+	mrs	r0, cpsr
+	bic	r0, r0, #0x1f
+	orr	r0, r0, #0xd3
+	msr	cpsr, r0
 
-#if 0
-	/**
-	 * make the clock run in 400MHz
+#if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK)
+	/*
+	 * relocate exception table
 	 */
-	ldr		r0, =CLKDIV
-	mov		r1, #5
-	str		r1, [r0]
-	/***************************/
-	mrc		p15, 0, r1, c1, c0, 0
-	orr		r1, r1, #0xC0000000
-	mcr		p15, 0, r1, c1, c0, 0
-	/***************************/
-	ldr		r0, =MPLLCON
-	ldr		r1, =0x5c012
-	str		r1, [r0]
+	ldr	r0, =_start
+	ldr	r1, =0x0
+	mov	r2, #16
+copyex:
+	subs	r2, r2, #1
+	ldr	r3, [r0], #4
+	str	r3, [r1], #4
+	bne	copyex
+#endif
 
-	/**
-	 * enable the I,D cache
-	 */
-	mrc		p15, 0, r0, c1, c0, 0
-	orr		r0, r0, #0x0004
-	orr		r0, r0, #0x1000
-	mcr		p15, 0, r0, c1, c0, 0
+#ifdef CONFIG_S3C24X0
+	/* turn off the watchdog */
 
-	/**
-	 * setup the SDRAM
+# if defined(CONFIG_S3C2400)
+#  define pWTCON	0x15300000
+#  define INTMSK	0x14400008	/* Interrupt-Controller base addresses */
+#  define CLKDIVN	0x14800014	/* clock divisor register */
+#else
+#  define pWTCON	0x53000000
+#  define INTMSK	0x4A000008	/* Interrupt-Controller base addresses */
+#  define INTSUBMSK	0x4A00001C
+#  define CLKDIVN	0x4C000014	/* clock divisor register */
+# endif
+
+	ldr	r0, =pWTCON
+	mov	r1, #0x0
+	str	r1, [r0]
+
+	/*
+	 * mask all IRQs by setting all bits in the INTMR - default
 	 */
-	ldr		r0, =0x48000000
-	ldr		r1, =0x22011110
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x00000700
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x00000700
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x00000700
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x00000700
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x00000700
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x00000700
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x00018005
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x00018005
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x008C07A3
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x000000B1
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x00000030
-	str		r1, [r0]
-	add		r0, r0, #4
-	ldr		r1, =0x00000030
-	str		r1, [r0]
-	add		r0, r0, #4
+	mov	r1, #0xffffffff
+	ldr	r0, =INTMSK
+	str	r1, [r0]
+# if defined(CONFIG_S3C2410)
+	ldr	r1, =0x3ff
+	ldr	r0, =INTSUBMSK
+	str	r1, [r0]
+# endif
+#endif	/* CONFIG_S3C24X0 */
+
+	/*
+	 * we do sys-critical inits only at reboot,
+	 * not when booting from ram!
+	 */
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+	bl	cpu_init_crit
 #endif
 
 	bl	_main
@@ -133,7 +112,6 @@ c_runtime_cpu_setup:
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 cpu_init_crit:
-#if 0
 	/*
 	 * flush v4 I/D caches
 	 */
@@ -150,7 +128,6 @@ cpu_init_crit:
 	orr	r0, r0, #0x00000002	@ set bit 2 (A) Align
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
 	mcr	p15, 0, r0, c1, c0, 0
-#endif
 
 	/*
 	 * before relocating, we have to setup RAM timing

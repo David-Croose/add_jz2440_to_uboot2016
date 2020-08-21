@@ -192,6 +192,7 @@ void board_init_f(ulong dummy)
 	int i;
 	volatile unsigned int *p = (volatile unsigned int *)0x30000000;
 
+
 #if 0
 	preloader_console_init();
 	spl_init();
