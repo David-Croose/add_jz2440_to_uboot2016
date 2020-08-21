@@ -215,7 +215,7 @@ void board_init_f(ulong dummy)
 #if 1
 
 
-    for (i = 0; i < 10000; i++) {
+    for (i = 0; i < 64*1024*1024/4; i++) {
         p[i] = i;
         if (p[i] != i) {
         	uart0_puts("error\n");

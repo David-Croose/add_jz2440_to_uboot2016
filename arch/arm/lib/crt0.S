@@ -73,7 +73,7 @@ ENTRY(_main)
 
 	ldr	sp, =4096
 	bl	pre_init
-	/* ldr	sp, =0x34000000 */
+	ldr	sp, =0x34000000
 
 /*
 	mov	r0, sp
