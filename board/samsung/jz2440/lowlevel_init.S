@@ -16,4 +16,13 @@
 
 .globl lowlevel_init
 lowlevel_init:
+	/**
+	 * enable the I,D cache
+	 */
+	mrc	p15, 0, r0, c1, c0, 0
+	orr	r0, r0, #0x0004
+	orr	r0, r0, #0x1000
+	mcr	p15, 0, r0, c1, c0, 0
+
+	ldr	sp, =4096
 	b	pre_init
