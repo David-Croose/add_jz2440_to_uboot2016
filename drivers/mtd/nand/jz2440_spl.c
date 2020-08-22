@@ -17,18 +17,17 @@ static void nand_wati_idle(void)
 
 static void nand_select(int flag)
 {
-	unsigned int tmp;
+	int i;
 
 	if(flag == 1)
 	{
-		tmp = *(volatile unsigned int *)NFCONT;
-		tmp &= ~(1 << 1);
-		*(volatile unsigned int *)NFCONT = tmp;
+		*(volatile unsigned int *)NFCONT &= ~(1 << 1);
 	}
 	else if(flag == 0)
 	{
-		*(volatile unsigned int *)NFCONT |= 1 << 1;
+		*(volatile unsigned int *)NFCONT |= (1 << 1);
 	}
+	for(i = 0; i < 10; i ++);
 }
 
 static void nand_send_cmd(unsigned char cmd)
@@ -73,7 +72,7 @@ void nand_init(void)
 {
 	puts("nand_init\n");
 
-	clock_enable(CLKSRC_NAND);
+	/// clock_enable(CLKSRC_NAND);
 	*(volatile unsigned int *)NFCONF = (TACLS << 12) | (TWRPH0 << 8) | (TWRPH1 << 4);
 	*(volatile unsigned int *)NFCONT = (1 << 4) | (1 << 1) | (1 << 0);
 	nand_reset();
@@ -84,7 +83,6 @@ void nand_init(void)
  */
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 {
-	return 0;
 	unsigned int i;
 	unsigned char *buf = dst;
 

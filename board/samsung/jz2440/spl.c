@@ -101,26 +101,6 @@ void puts(const char *p)
 	}
 }
 
-static int32_t hex2str(const uint8_t *hex, uint32_t hexlen, char *s, uint32_t slen) {
-#define BYTE_H(x, t) ((t)[0] = (((x) >> 4) < 0xA ? '0' + ((x) >> 4) : 'a' + ((x) >> 4) - 0xA), (t)[1] = 0, (t))
-#define BYTE_L(x, t) ((t)[0] = (((x) & 0xF) < 0xA ? '0' + ((x) & 0xF) : 'a' + ((x) & 0xF) - 0xA), (t)[1] = 0, (t))
-
-    uint32_t i;
-    char t[2];
-
-    if (!hex || !s || slen < hexlen * 2 + 1) {
-        return 1;
-    }
-
-    memset(s, 0, slen);
-    for (i = 0; i < hexlen; i++) {
-        strcat(s, BYTE_H(hex[i], t));
-        strcat(s, BYTE_L(hex[i], t));
-    }
-    s[hexlen * 2] = 0;
-    return 0;
-}
-
 void print_bytes(char *p)
 {
 	char tmp;
@@ -138,6 +118,8 @@ void print_bytes(char *p)
 		putc(tmp - 0xA + 'A');
 }
 
+void nand_init(void);
+int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst);
 
 void board_init_f(ulong dummy)
 {
@@ -172,6 +154,8 @@ void board_init_f(ulong dummy)
 	nand_init();
 	nand_spl_load_image(0, bytes, p);
 	for (i = 0; i < bytes; i++, p++) {
+		if (i && (i % 16 == 0))
+			puts("\n");
 		print_bytes(p);
 		putc(' ');
 	}
