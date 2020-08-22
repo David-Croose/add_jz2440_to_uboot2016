@@ -101,11 +101,82 @@ void puts(const char *p)
 	}
 }
 
+static int32_t hex2str(const uint8_t *hex, uint32_t hexlen, char *s, uint32_t slen) {
+#define BYTE_H(x, t) ((t)[0] = (((x) >> 4) < 0xA ? '0' + ((x) >> 4) : 'a' + ((x) >> 4) - 0xA), (t)[1] = 0, (t))
+#define BYTE_L(x, t) ((t)[0] = (((x) & 0xF) < 0xA ? '0' + ((x) & 0xF) : 'a' + ((x) & 0xF) - 0xA), (t)[1] = 0, (t))
+
+    uint32_t i;
+    char t[2];
+
+    if (!hex || !s || slen < hexlen * 2 + 1) {
+        return 1;
+    }
+
+    memset(s, 0, slen);
+    for (i = 0; i < hexlen; i++) {
+        strcat(s, BYTE_H(hex[i], t));
+        strcat(s, BYTE_L(hex[i], t));
+    }
+    s[hexlen * 2] = 0;
+    return 0;
+}
+
+void print_bytes(char *p)
+{
+	char tmp;
+
+	tmp = *p >> 4;
+	if (tmp < 0xA)
+		putc(tmp + '0');
+	else
+		putc(tmp - 0xA + 'A');
+
+	tmp = *p & 0xF;
+	if (tmp < 0xA)
+		putc(tmp + '0');
+	else
+		putc(tmp - 0xA + 'A');
+}
+
+
 void board_init_f(ulong dummy)
 {
+	int i;
+	int bytes = 400;
+	char *p = (char *)0x30000000;
+	int *q = (int *)0x30000000;
+
 	uart0_init();
-	preloader_console_init();	/* TODO  need it? */
+	preloader_console_init();
 	spl_init();
 
 	puts("board_init_f\n");
+
+
+	puts("testing SDRAM...\n");
+	for (i = 0; i < 64*1024*1024; i++) {
+		q[i] = i;
+		if (q[i] != i) {
+			puts("SDRAM error\n");
+			while (1);
+		}
+
+	}
+
+
+
+
+	puts("==============================================================================\n");
+	puts("testing nand...\n");
+
+	nand_init();
+	nand_spl_load_image(0, bytes, p);
+	for (i = 0; i < bytes; i++, p++) {
+		print_bytes(p);
+		putc(' ');
+	}
+	puts("\ndone\n");
+
+	puts("==============================================================================\n");
+	while (1);
 }

@@ -344,7 +344,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 {
 	int i;
 
-	debug(">>spl:board_init_r()\n");
+	debug(">>spl:board_init_r()\n"); puts("board_init_r: 347\n");
 
 #if defined(CONFIG_SYS_SPL_MALLOC_START)
 	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
@@ -367,10 +367,12 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	spl_board_init();
 #endif
 
+	puts("---> 370\n");
 	board_boot_order(spl_boot_list);
 	for (i = 0; i < ARRAY_SIZE(spl_boot_list) &&
 			spl_boot_list[i] != BOOT_DEVICE_NONE; i++) {
 		announce_boot_device(spl_boot_list[i]);
+		puts("---> 375\n");
 		if (!spl_load_image(spl_boot_list[i]))
 			break;
 	}
@@ -381,9 +383,10 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		hang();
 	}
 
+	puts("---> 386\n");
 	switch (spl_image.os) {
 	case IH_OS_U_BOOT:
-		debug("Jumping to U-Boot\n");
+		debug("Jumping to U-Boot\n"); puts("Jumping to U-Boot\nn");
 		break;
 #ifdef CONFIG_SPL_OS_BOOT
 	case IH_OS_LINUX:
@@ -392,14 +395,14 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		jump_to_image_linux((void *)CONFIG_SYS_SPL_ARGS_ADDR);
 #endif
 	default:
-		debug("Unsupported OS image.. Jumping nevertheless..\n");
+		debug("Unsupported OS image.. Jumping nevertheless..\n"); puts("Unsupported OS image.. Jumping nevertheless..\n");
 	}
 #if defined(CONFIG_SYS_MALLOC_F_LEN) && !defined(CONFIG_SYS_SPL_MALLOC_SIZE)
 	debug("SPL malloc() used %#lx bytes (%ld KB)\n", gd->malloc_ptr,
 	      gd->malloc_ptr / 1024);
 #endif
 
-	debug("loaded - jumping to U-Boot...");
+	debug("loaded - jumping to U-Boot..."); puts("loaded - jumping to U-Boot...");
 	jump_to_image_no_args(&spl_image);
 }
 
