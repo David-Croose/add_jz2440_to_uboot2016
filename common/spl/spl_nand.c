@@ -14,13 +14,13 @@
 int spl_nand_load_image(void)
 {
 	nand_init();
-	puts("---> 17\n");
+	puts("---> copying uboot...\n");
 	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
 			    CONFIG_SYS_NAND_U_BOOT_SIZE,
 			    (void *)CONFIG_SYS_NAND_U_BOOT_DST);
 	spl_set_header_raw_uboot();
 	nand_deselect();
-	puts("---> 23\n");
+	puts("---> copying uboot done\n");
 	return 0;
 }
 #else

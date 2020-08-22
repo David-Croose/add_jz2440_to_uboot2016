@@ -101,66 +101,9 @@ void puts(const char *p)
 	}
 }
 
-void print_bytes(char *p)
-{
-	char tmp;
-
-	tmp = *p >> 4;
-	if (tmp < 0xA)
-		putc(tmp + '0');
-	else
-		putc(tmp - 0xA + 'A');
-
-	tmp = *p & 0xF;
-	if (tmp < 0xA)
-		putc(tmp + '0');
-	else
-		putc(tmp - 0xA + 'A');
-}
-
-void nand_init(void);
-int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst);
-
 void board_init_f(ulong dummy)
 {
-	int i;
-	int bytes = 400;
-	char *p = (char *)0x30000000;
-	int *q = (int *)0x30000000;
-
 	uart0_init();
 	preloader_console_init();
 	spl_init();
-
-	puts("board_init_f\n");
-
-
-	puts("testing SDRAM...\n");
-	for (i = 0; i < 64*1024*1024/4; i++) {
-		q[i] = i;
-		if (q[i] != i) {
-			puts("SDRAM error\n");
-			while (1);
-		}
-
-	}
-
-
-
-
-	puts("==============================================================================\n");
-	puts("testing nand...\n");
-
-	nand_init();
-	nand_spl_load_image(0, bytes, p);
-	for (i = 0; i < bytes; i++, p++) {
-		if (i && (i % 16 == 0))
-			puts("\n");
-		print_bytes(p);
-		putc(' ');
-	}
-	puts("\ndone\n");
-
-	puts("==============================================================================\n");
-	while (1);
 }
