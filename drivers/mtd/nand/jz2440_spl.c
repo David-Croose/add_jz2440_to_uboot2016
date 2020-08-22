@@ -70,9 +70,6 @@ static void nand_reset(void)
 
 void nand_init(void)
 {
-	puts("nand_init\n");
-
-	/// clock_enable(CLKSRC_NAND);
 	*(volatile unsigned int *)NFCONF = (TACLS << 12) | (TWRPH0 << 8) | (TWRPH1 << 4);
 	*(volatile unsigned int *)NFCONT = (1 << 4) | (1 << 1) | (1 << 0);
 	nand_reset();
@@ -86,7 +83,6 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 	unsigned int i;
 	unsigned char *buf = dst;
 
-	puts("nand_spl_load_image start\n");
 	nand_select(1);
 
 	for(i = 0; i < size; i ++)
@@ -99,7 +95,6 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 		buf ++;
 	}
 
-	puts("nand_spl_load_image end\n");
 	nand_select(0);
 
 	return 0;
@@ -107,6 +102,5 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 
 void nand_deselect(void)
 {
-	puts("nand_deselect\n");
 	nand_select(0);
 }

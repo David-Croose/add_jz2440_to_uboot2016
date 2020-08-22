@@ -14,13 +14,11 @@
 int spl_nand_load_image(void)
 {
 	nand_init();
-	puts("---> copying uboot...\n");
 	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
 			    CONFIG_SYS_NAND_U_BOOT_SIZE,
 			    (void *)CONFIG_SYS_NAND_U_BOOT_DST);
 	spl_set_header_raw_uboot();
 	nand_deselect();
-	puts("---> copying uboot done\n");
 	return 0;
 }
 #else
@@ -28,16 +26,13 @@ static int spl_nand_load_element(int offset, struct image_header *header)
 {
 	int err;
 
-	puts("---> load header\n");
 	err = nand_spl_load_image(offset, sizeof(*header), (void *)header);
 	if (err)
 		return err;
 
 	spl_parse_image_header(header);
-	puts("---> load body\n");
 	err = nand_spl_load_image(offset, spl_image.size,
 				   (void *)(unsigned long)spl_image.load_addr);
-	puts("---> load body done\n");
 	return err;
 }
 
@@ -100,8 +95,8 @@ int spl_nand_load_image(void)
 	spl_nand_load_element(CONFIG_ENV_OFFSET_REDUND, header);
 #endif
 #endif
-	/* Load u-boot */ puts("before spl_nand_load_element: 99\n");
-	err = spl_nand_load_element(CONFIG_SYS_NAND_U_BOOT_OFFS, header); puts("after spl_nand_load_image: 100\n");
+	/* Load u-boot */
+	err = spl_nand_load_element(CONFIG_SYS_NAND_U_BOOT_OFFS, header);
 	nand_deselect();
 	return err;
 }
