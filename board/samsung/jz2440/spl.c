@@ -154,7 +154,7 @@ void board_init_f(ulong dummy)
 
 
 	puts("testing SDRAM...\n");
-	for (i = 0; i < 64*1024*1024; i++) {
+	for (i = 0; i < 64*1024*1024/4; i++) {
 		q[i] = i;
 		if (q[i] != i) {
 			puts("SDRAM error\n");

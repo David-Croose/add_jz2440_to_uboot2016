@@ -51,6 +51,8 @@ copyex:
 #endif
 
 #ifdef CONFIG_S3C24X0
+#define CLKDIVN  0x4C000014
+#define MPLLCON  0x4C000004
 	/* turn off the watchdog */
 
 # if defined(CONFIG_S3C2400)
@@ -79,6 +81,22 @@ copyex:
 	ldr	r0, =INTSUBMSK
 	str	r1, [r0]
 # endif
+
+	/* FCLK:HCLK:PCLK = 1:4:8 */
+	/**
+	 * make the clock run in 400MHz
+	 */
+	ldr		r0, =CLKDIVN
+	mov		r1, #5
+	str		r1, [r0]
+	/***************************/
+	mrc		p15, 0, r1, c1, c0, 0
+	orr		r1, r1, #0xC0000000
+	mcr		p15, 0, r1, c1, c0, 0
+	/***************************/
+	ldr		r0, =MPLLCON
+	ldr		r1, =0x5c011
+	str		r1, [r0]
 #endif	/* CONFIG_S3C24X0 */
 
 	/*
