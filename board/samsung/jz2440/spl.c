@@ -64,22 +64,6 @@ static void uart0_init(void)
 #endif
 }
 
-void uart0_putc(unsigned char sendbyte)
-{
-	while(!((*(volatile unsigned int *)UTRSTAT0) & (1 << 2)));
-	*(volatile unsigned char *)UTXH0 = sendbyte;
-}
-
-void uart0_puts(const char *p)
-{
-	while(*p) {
-		if (*p == '\n')
-			uart0_putc('\r');
-		uart0_putc(*p);
-		p++;
-	}
-}
-
 void clock_enable(unsigned int clknum)
 {
 	unsigned int tmp;
@@ -96,152 +80,32 @@ unsigned int spl_boot_device(void)
 
 inline void hang(void)
 {
-	uart0_puts("====> hang\n");
+	puts("====> hang\n");
 	for (;;)
 		;
 }
 
-int	serial_init(void)
+void putc(char c)
 {
-	uart0_init();
-	return 0;
+	while(!((*(volatile unsigned int *)UTRSTAT0) & (1 << 2)));
+	*(volatile unsigned char *)UTXH0 = c;
 }
 
-void led_init(void)
+void puts(const char *p)
 {
-	int tmp;
-
-	clock_enable(CLKSRC_GPIO);
-
-	// GPF4 set output
-	tmp = *(volatile unsigned int *)GPFCON;
-	tmp &= ~((0x3 & 0x3) << (4 * 2));
-	tmp |= (0x1 & 0x3) << (4 * 2);
-	*(volatile unsigned int *)GPFCON = tmp;
-
-	// GPF5 set output
-	tmp = *(volatile unsigned int *)GPFCON;
-	tmp &= ~((0x3 & 0x3) << (5 * 2));
-	tmp |= (0x1 & 0x3) << (5 * 2);
-	*(volatile unsigned int *)GPFCON = tmp;
-
-	// GPF6 set output
-	tmp = *(volatile unsigned int *)GPFCON;
-	tmp &= ~((0x3 & 0x3) << (6 * 2));
-	tmp |= (0x1 & 0x3) << (6 * 2);
-	*(volatile unsigned int *)GPFCON = tmp;
-
-	// GPF4, GPF5, GPF6 set to be high
-	*(volatile unsigned int *)GPFDAT |= 1 << 4;
-	*(volatile unsigned int *)GPFDAT |= 1 << 5;
-	*(volatile unsigned int *)GPFDAT |= 1 << 6;
-}
-
-void led_ctrl(int select, int light)
-{
-
-	int i;
-
-	// there are 3 leds in total
-	for(i = 0; i < 3; i ++)
-	{
-		if((select >> i) & 1)
-		{
-			switch(i)
-			{
-			case 0:
-				if(light)
-				{
-					*(volatile unsigned int *)GPFDAT &= ~(1 << 4);
-				}
-				else
-				{
-					*(volatile unsigned int *)GPFDAT |= 1 << 4;
-				}
-				break;
-
-			case 1:
-				if(light)
-				{
-					*(volatile unsigned int *)GPFDAT &= ~(1 << 5);
-				}
-				else
-				{
-					*(volatile unsigned int *)GPFDAT |= 1 << 5;
-				}
-				break;
-
-			case 2:
-				if(light)
-				{
-					*(volatile unsigned int *)GPFDAT &= ~(1 << 6);
-				}
-				else
-				{
-					*(volatile unsigned int *)GPFDAT |= 1 << 6;
-				}
-				break;
-			}
-		}
+	while(*p) {
+		if (*p == '\n')
+			putc('\r');
+		putc(*p);
+		p++;
 	}
-
 }
 
 void board_init_f(ulong dummy)
 {
-	int i;
-	volatile unsigned int *p = (volatile unsigned int *)0x30000000;
-
-
-#if 0
-	preloader_console_init();
+	uart0_init();
+	preloader_console_init();	/* TODO  need it? */
 	spl_init();
-	led_init();
-	led_ctrl(1, 1);
-#else
-	serial_init();
-#endif
 
-	/// // print SDRAM param
-	/// volatile unsigned int *p = (volatile unsigned int *)0x48000000;
-	/// for (i = 0; i < 13; i++)
-
-
-
-
-
-	uart0_puts("\nboard_init_f\n");
-
-	uart0_puts("SDRAM testing...\n");
-#if 1
-
-
-    for (i = 0; i < 64*1024*1024/4; i++) {
-        p[i] = i;
-        if (p[i] != i) {
-        	uart0_puts("error\n");
-            while(1);
-        }
-    }
-
-
-	/// *(volatile unsigned int *)(0x30000000) = 0x12345678;
-	/// if (*(volatile unsigned int *)(0x30000000) == 0x12345678)
-	/// 	uart0_puts("SDRAM test OK\n");
-	/// else
-	/// 	uart0_puts("SDRAM test error\n");
-
-#else
-	for (i = 0; i < 1000; i++) {
-		*(volatile unsigned char *)(0x30000000 + i) = i;
-		if (*(volatile unsigned char *)(0x30000000 + i) != i) {
-			uart0_puts("SDRAM test error\n");
-			led_ctrl(7, 1);
-			while(1);
-		}
-	}
-#endif
-
-	uart0_puts("SDRAM test done\n");
-
+	puts("board_init_f\n");
 }

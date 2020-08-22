@@ -9,7 +9,7 @@
 #define CONFIG_S3C2440		/* specifically a SAMSUNG S3C2440 SoC */
 #define CONFIG_MACH_TYPE MACH_TYPE_S3C2440
 
-#define CONFIG_SYS_TEXT_BASE	0x0
+#define CONFIG_SYS_TEXT_BASE	0x30000000
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SKIP_LOWLEVEL_INIT
@@ -27,9 +27,11 @@
 /*
  * Hardware drivers
  */
+#if 0
 #define CONFIG_CS8900		/* we have a CS8900 on-board */
 #define CONFIG_CS8900_BASE	0x19000300
 #define CONFIG_CS8900_BUS16	/* the Linux driver does accesses as shorts */
+#endif
 
 /*
  * select serial console configuration
@@ -40,16 +42,20 @@
 /************************************************************
  * USB support (currently only works with D-cache off)
  ************************************************************/
+/*
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_OHCI_S3C24XX
 #define CONFIG_USB_KEYBOARD
 #define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
+*/
 
 /************************************************************
  * RTC
  ************************************************************/
+/*
 #define CONFIG_RTC_S3C24X0
+*/
 
 
 #define CONFIG_BAUDRATE		115200
@@ -65,6 +71,7 @@
 /*
  * Command line configuration.
  */
+/*
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
@@ -73,6 +80,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_USB
+*/
 
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING
@@ -110,9 +118,11 @@
 #define CONFIG_SYS_LOAD_ADDR		0x30800000
 
 /* support additional compression methods */
+/*
 #define CONFIG_BZIP2
 #define CONFIG_LZO
 #define CONFIG_LZMA
+*/
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map
@@ -167,6 +177,7 @@
 /*
  * File system
  */
+/*
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_UBI
@@ -176,6 +187,7 @@
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_YAFFS2
 #define CONFIG_RBTREE
+*/
 
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
@@ -183,7 +195,6 @@
 				GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_BOARD_EARLY_INIT_F
-
 
 
 
@@ -202,6 +213,8 @@
 #define CONFIG_SPL_MAX_SIZE	4096
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	4096
 
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_USE_TINY_PRINTF
 
 
 

@@ -23,6 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int timer_init(void)
 {
+#ifndef CONFIG_SPL_BUILD
 	struct s3c24x0_timers *timers = s3c24x0_get_base_timers();
 	ulong tmr;
 
@@ -48,7 +49,7 @@ int timer_init(void)
 	writel(tmr, &timers->tcon);
 	gd->arch.lastinc = 0;
 	gd->arch.tbl = 0;
-
+#endif
 	return 0;
 }
 

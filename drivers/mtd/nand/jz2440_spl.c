@@ -71,7 +71,7 @@ static void nand_reset(void)
 
 void nand_init(void)
 {
-	uart0_puts("nand_init\n");
+	puts("nand_init\n");
 
 	clock_enable(CLKSRC_NAND);
 	*(volatile unsigned int *)NFCONF = (TACLS << 12) | (TWRPH0 << 8) | (TWRPH1 << 4);
@@ -101,14 +101,11 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 
 	nand_select(0);
 
-	uart0_puts("nand_spl_load_image\n");
-	led_ctrl(1, 0);
-
 	return 0;
 }
 
 void nand_deselect(void)
 {
-	uart0_puts("nand_deselect\n");
+	puts("nand_deselect\n");
 	nand_select(0);
 }

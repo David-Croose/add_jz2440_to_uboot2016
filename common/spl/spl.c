@@ -18,7 +18,6 @@
 #include <malloc.h>
 #include <dm/root.h>
 #include <linux/compiler.h>
-#include <asm/arch/jz2440.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -346,7 +345,6 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	int i;
 
 	debug(">>spl:board_init_r()\n");
-	uart0_puts(">>spl:board_init_r()\n");
 
 #if defined(CONFIG_SYS_SPL_MALLOC_START)
 	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
@@ -369,8 +367,6 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	spl_board_init();
 #endif
 
-	uart0_puts("====> spl.c:372\n");
-
 	board_boot_order(spl_boot_list);
 	for (i = 0; i < ARRAY_SIZE(spl_boot_list) &&
 			spl_boot_list[i] != BOOT_DEVICE_NONE; i++) {
@@ -379,21 +375,15 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			break;
 	}
 
-	uart0_puts("====> spl.c:380\n");
-
 	if (i == ARRAY_SIZE(spl_boot_list) ||
 	    spl_boot_list[i] == BOOT_DEVICE_NONE) {
 		puts("SPL: failed to boot from all boot devices\n");
-		uart0_puts("SPL: failed to boot from all boot devices\n");
 		hang();
 	}
-
-	uart0_puts("====> spl.c:389\n");
 
 	switch (spl_image.os) {
 	case IH_OS_U_BOOT:
 		debug("Jumping to U-Boot\n");
-		uart0_puts("Jumping to U-Boot\n");
 		break;
 #ifdef CONFIG_SPL_OS_BOOT
 	case IH_OS_LINUX:
@@ -410,7 +400,6 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #endif
 
 	debug("loaded - jumping to U-Boot...");
-	uart0_puts("loaded - jumping to U-Boot...");
 	jump_to_image_no_args(&spl_image);
 }
 
@@ -427,8 +416,8 @@ void preloader_console_init(void)
 
 	gd->have_console = 1;
 
-	/* puts("\nU-Boot SPL " PLAIN_VERSION " (" U_BOOT_DATE " - " \
-			U_BOOT_TIME ")\n"); */
+	puts("\nU-Boot SPL " PLAIN_VERSION " (" U_BOOT_DATE " - " \
+			U_BOOT_TIME ")\n");
 #ifdef CONFIG_SPL_DISPLAY_PRINT
 	spl_display_print();
 #endif
