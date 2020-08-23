@@ -29,6 +29,13 @@
 #define CONFIG_CS8900_BUS16	/* the Linux driver does accesses as shorts */
 #endif
 
+
+/* Ethernet */
+#define CONFIG_DRIVER_DM9000
+#define CONFIG_DM9000_BASE              0x20000000
+#define DM9000_IO                       CONFIG_DM9000_BASE
+#define DM9000_DATA                     (CONFIG_DM9000_BASE + 4)	/* LADDR2 */
+
 /*
  * select serial console configuration
  */
@@ -72,11 +79,12 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_USB
 */
 #define CONFIG_CMD_NAND
+
+#define CONFIG_CMD_PING
 
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING
