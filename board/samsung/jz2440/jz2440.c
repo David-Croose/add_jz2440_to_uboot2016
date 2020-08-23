@@ -91,9 +91,6 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x30000100;
 
-	icache_enable();
-	dcache_enable();
-
 	return 0;
 }
 
@@ -122,4 +119,14 @@ int board_eth_init(bd_t *bis)
 ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 {
 	return 1;
+}
+
+void enable_caches(void)
+{
+#ifndef CONFIG_SYS_ICACHE_OFF
+	icache_enable();
+#endif
+#ifndef CONFIG_SYS_DCACHE_OFF
+	dcache_enable();
+#endif
 }
