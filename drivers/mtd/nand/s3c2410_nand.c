@@ -42,8 +42,6 @@ static void s3c24x0_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *chip = mtd->priv;
 	struct s3c24x0_nand *nand = s3c24x0_get_base_nand();
-	int i;
-	static int last;
 	static int active;
 
 	debug("hwcontrol(): 0x%02x 0x%02x\n", cmd, ctrl);
@@ -51,34 +49,24 @@ static void s3c24x0_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 	if (ctrl & NAND_CTRL_CHANGE) {
 		if (ctrl & NAND_CLE) {
 			chip->IO_ADDR_W = (void *)&nand->nfcmd;
-			last = 0;
 		}
 		if (ctrl & NAND_ALE) {
 			chip->IO_ADDR_W = (void *)&nand->nfaddr;
-			last = 1;
 		}
 
 		if (ctrl & NAND_NCE) {
-			if (!active) {
+			if (!active)
 				writel(readl(&nand->nfcont) & ~(1 << 1), chip->IO_ADDR_W);
-				/// printf("===> %s:%s:%d  nand ce\n", __FILE__, __func__, __LINE__);
-			}
 			active = 1;
-		}
-		else {
-			if (active) {
+		} else {
+			if (active)
 				writel(readl(&nand->nfcont) | (1 << 1), chip->IO_ADDR_W);
-				/// printf("===> %s:%s:%d  nand nce\n", __FILE__, __func__, __LINE__);
-			}
 			active = 0;
 		}
 	}
 
-	if (cmd != NAND_CMD_NONE) {
+	if (cmd != NAND_CMD_NONE)
 		writeb(cmd, chip->IO_ADDR_W);
-		for (i = 0; last && i < 10; i++);
-		/// printf("===> %s:%s:%d  write %s:0x%02x\n", __FILE__, __func__, __LINE__, last ? "addr" : "cmd", cmd);
-	}
 }
 
 static int s3c24x0_dev_ready(struct mtd_info *mtd)
@@ -126,9 +114,11 @@ int board_nand_init(struct nand_chip *nand)
 {
 	u_int32_t cfg;
 	u_int8_t tacls, twrph0, twrph1;
-	u_int32_t tmp;
 	struct s3c24x0_clock_power *clk_power = s3c24x0_get_base_clock_power();
 	struct s3c24x0_nand *nand_reg = s3c24x0_get_base_nand();
+#ifdef CONFIG_S3C2440
+	u_int32_t tmp;
+#endif
 
 	debug("board_nand_init()\n");
 
@@ -140,9 +130,9 @@ int board_nand_init(struct nand_chip *nand)
 	twrph0 = CONFIG_S3C24XX_TWRPH0;
 	twrph1 =  CONFIG_S3C24XX_TWRPH1;
 #else
-	tacls = 3;
-	twrph0 = 7;
-	twrph1 = 3;
+	tacls = 4;
+	twrph0 = 8;
+	twrph1 = 8;
 #endif
 
 	cfg = 0;
@@ -152,10 +142,9 @@ int board_nand_init(struct nand_chip *nand)
 	writel(cfg, &nand_reg->nfconf);
 #ifdef CONFIG_S3C2440
 	tmp = readl(&nand_reg->nfcont);
-	tmp &= ~(1 << 1);
-	tmp |= 1;
+	tmp &= ~(1 << 1);	/* enable chip select */
+	tmp |= 1;			/* enbale nand controller */
 	writel(tmp, &nand_reg->nfcont);
-	/// writeb(0xFF, &nand_reg->nfcmd);		/* TODO  need it? */
 #endif
 	/* initialize nand_chip data structure */
 	nand->IO_ADDR_R = (void *)&nand_reg->nfdata;
