@@ -38,35 +38,20 @@ static void nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 }
 #endif
 
-static void s3c24x0_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
+static void s3c24x0_hwcontrol(struct mtd_info *mtd, int dat, unsigned int ctrl)
 {
-	struct nand_chip *chip = mtd->priv;
 	struct s3c24x0_nand *nand = s3c24x0_get_base_nand();
-	static int active;
 
-	debug("hwcontrol(): 0x%02x 0x%02x\n", cmd, ctrl);
+	debug("hwcontrol(): 0x%02x 0x%02x\n", dat, ctrl);
 
-	if (ctrl & NAND_CTRL_CHANGE) {
-		if (ctrl & NAND_CLE) {
-			chip->IO_ADDR_W = (void *)&nand->nfcmd;
-		}
-		if (ctrl & NAND_ALE) {
-			chip->IO_ADDR_W = (void *)&nand->nfaddr;
-		}
-
-		if (ctrl & NAND_NCE) {
-			if (!active)
-				writel(readl(&nand->nfcont) & ~(1 << 1), chip->IO_ADDR_W);
-			active = 1;
-		} else {
-			if (active)
-				writel(readl(&nand->nfcont) | (1 << 1), chip->IO_ADDR_W);
-			active = 0;
-		}
+	if (ctrl & NAND_CLE)
+	{
+		writeb(dat, &nand->nfcmd);
 	}
-
-	if (cmd != NAND_CMD_NONE)
-		writeb(cmd, chip->IO_ADDR_W);
+	else if(ctrl & NAND_ALE)
+	{
+		writeb(dat, &nand->nfaddr);
+	}
 }
 
 static int s3c24x0_dev_ready(struct mtd_info *mtd)
@@ -74,6 +59,28 @@ static int s3c24x0_dev_ready(struct mtd_info *mtd)
 	struct s3c24x0_nand *nand = s3c24x0_get_base_nand();
 	debug("dev_ready\n");
 	return readl(&nand->nfstat) & 0x01;
+}
+
+static void s3c2440_nand_select(struct mtd_info *mtd, int chipnr)
+{
+	struct s3c24x0_nand *nand = s3c24x0_get_base_nand();
+	unsigned int tmp;
+
+	tmp = readl(&nand->nfcont);
+
+	switch (chipnr) {
+	case -1: /* deselect */
+		tmp |= (1<<1);
+		break;
+	case 0:  /* select */
+		tmp &= ~(1<<1);
+		break;
+
+	default:
+		BUG();
+	}
+
+	writel(tmp, &nand->nfcont);
 }
 
 #ifdef CONFIG_S3C2410_NAND_HWECC
@@ -150,7 +157,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->IO_ADDR_R = (void *)&nand_reg->nfdata;
 	nand->IO_ADDR_W = (void *)&nand_reg->nfdata;
 
-	nand->select_chip = NULL;
+	nand->select_chip = s3c2440_nand_select;
 
 	/* read_buf and write_buf are default */
 	/* read_byte and write_byte are default */
